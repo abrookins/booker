@@ -7,10 +7,10 @@ require 'tlsmail'
 class Booker 
 	attr_writer :card, :pin, :user, :pass, :to, :email
 
-    def initialize(uri) 
+	def initialize(uri) 
 		@agent = Mechanize.new 
 		@home_page = @agent.get(uri)
-    end
+	end
 	def login
 		@account_page = @agent.click(@home_page.link_with(:text => 'My account'))
 		login_form = @account_page.form('patform')
