@@ -9,7 +9,7 @@ class Booker
 
     def initialize(uri) 
 		@agent = Mechanize.new 
-        @home_page = @agent.get(uri)
+		@home_page = @agent.get(uri)
     end
 	def login
 		@account_page = @agent.click(@home_page.link_with(:text => 'My account'))
@@ -17,7 +17,7 @@ class Booker
 		login_form.code = @card
 		login_form.pin = @pin
 		@user_page = @agent.submit(login_form, login_form.buttons.first)
-    end
+	end
 	def renew_books
 		target = '' 
 		renew_uri = ''
