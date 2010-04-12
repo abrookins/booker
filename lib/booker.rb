@@ -45,10 +45,11 @@ class Booker
 		renew_books 
 	end
 	def notify(message, books)
+		uc_message = message.upcase
 		content = <<ENDOFMESSAGE
 From: Me <#{@email}>
 To: Me <#{@to}>
-Subject: Library Books on Hold
+Subject: Library Books #{uc_message} 
 
 The following books are #{message}:
 #{books}
