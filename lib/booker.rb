@@ -5,20 +5,30 @@ require 'mechanize'
 require 'tlsmail'
 
 class Booker 
-	attr_writer :card, :pin, :user, :pass, :to, :email
-
-	def initialize(uri) 
+	def initialize(uri, config) 
 		@agent = Mechanize.new 
 		@home_page = @agent.get(uri)
+
+		self.validate(config)
+		@config = config 
+	end
+	def validate(config)
+		[:card, :pin, :email, :pass, :to].each do |key|
+			unless config.has_key?(key)
+				raise "Config missing #{key.to_str} key."
+			end
+		end
 	end
 	def login
 		@account_page = @agent.click(@home_page.link_with(:text => 'My account'))
 		login_form = @account_page.form('patform')
-		login_form.code = @card
-		login_form.pin = @pin
+		login_form.code = @config[:card]
+		login_form.pin = @config[:pin]
 		@user_page = @agent.submit(login_form, login_form.buttons.first)
 	end
 	def renew_books
+		self.login 
+
 		target = '' 
 		renew_uri = ''
 		holds = ''
@@ -40,15 +50,11 @@ class Booker
 		# Send an email if it's time to give up the books 
 		notify('on hold', holds) unless holds.empty?
 	end
-	def check_books
-		login
-		renew_books 
-	end
 	def notify(message, books)
 		uc_message = message.upcase
 		content = <<ENDOFMESSAGE
-From: Me <#{@email}>
-To: Me <#{@to}>
+From: Me <#{@config[:email]}>
+To: Me <#{@config[:to]}>
 Subject: Library Books #{uc_message} 
 
 The following books are #{message}:
@@ -56,8 +62,8 @@ The following books are #{message}:
 ENDOFMESSAGE
 
 		Net::SMTP.enable_tls(OpenSSL::SSL::VERIFY_NONE)
-		Net::SMTP.start('smtp.gmail.com', 587, 'gmail.com', @email, @pass, :login) do |smtp|
-			smtp.send_message(content, @email, @to) 
+		Net::SMTP.start('smtp.gmail.com', 587, 'gmail.com', @config[:email], @config[:pass], :login) do |smtp|
+			smtp.send_message(content, @config[:email], @config[:to]) 
 		end
 	end
 end
