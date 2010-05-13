@@ -27,15 +27,16 @@ class Booker
 		@user_page = @agent.submit(login_form, login_form.buttons.first)
 	end
 	def renew_books
-		self.login 
-
 		target = '' 
 		renew_uri = ''
 		holds = ''
+                
+		login 
 
 		@user_page.links.each do |link|
 			target = link.text.strip if /Items currently checked out/.match(link.text.strip)
 		end
+
 		@renew_page = @agent.click(@user_page.link_with(:text => target))
 
 		# The link for the 'renew all' button is JavaScript-enabled to send 
