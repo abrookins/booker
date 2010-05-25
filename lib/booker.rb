@@ -9,7 +9,7 @@ class Booker
 		@agent = Mechanize.new 
 		@home_page = @agent.get(uri)
 
-		self.validate(config)
+		validate(config)
 		@config = config 
 	end
 	def validate(config)
